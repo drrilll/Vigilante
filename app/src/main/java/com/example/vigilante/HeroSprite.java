@@ -14,12 +14,14 @@ public class HeroSprite implements Sprite, Drawable {
     int height;
     double speed = 10; //the higher this number, the slower our hero
     Location location;
-    Direction direction;
+    //Direction direction;
     GameView gameView;
     Paint textPaint;
+    Vector direction;
     private Matrix rotator;
     float angle;
-    public HeroSprite(Location location, Direction direction, GameView gameView){
+    boolean firing = false;
+    public HeroSprite(Location location, Vector direction, GameView gameView){
         this.location = location;
         this.direction = direction;
         this.gameView = gameView;
@@ -34,11 +36,19 @@ public class HeroSprite implements Sprite, Drawable {
     }
 
     public HeroSprite(GameView gameView){
-        this (new Location(0,0), new Direction(0), gameView);
+        this (new Location(0,0), new Vector(0,1,0), gameView);
     }
 
     public HeroSprite(int x, int y, double direction, GameView gameView){
-        this(new Location(x,y), new Direction(direction), gameView);
+        this(new Location(x,y), new Vector(0,1,0), gameView);
+    }
+
+    public boolean isFiring(){
+        return firing;
+    }
+
+    public void setFiring(boolean firing){
+        this.firing = firing;
     }
 
     @Override
@@ -60,11 +70,10 @@ public class HeroSprite implements Sprite, Drawable {
     }
 
     /**
-     * So the clever part here is we need drawing offsets that translate the center to
-     * where it is supposed to be.
-     * @param touch
+     *
      */
     public void rotateTo(Vector touch) {
+        direction = touch;
         angle = (float)Math.atan2(touch.y,touch.x);
         angle = (float)Math.toDegrees(angle);
     }

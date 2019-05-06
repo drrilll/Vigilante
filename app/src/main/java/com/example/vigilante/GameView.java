@@ -19,6 +19,8 @@ public  class GameView extends SurfaceView implements SurfaceHolder.Callback {
         ArrayList<Button> buttons;
         private float radius = 150; //analog button radius
         Background background;
+        Bullet bullet;
+        Message message;
 
 
 
@@ -27,6 +29,7 @@ public  class GameView extends SurfaceView implements SurfaceHolder.Callback {
                 getHolder().addCallback(this);
                 gameThread = new GameThread(getHolder(), this);
                 setFocusable(true);
+                bullet = new Bullet(this);
 
                 drawables = new ArrayList<>();
                 background = new Background(this);
@@ -41,6 +44,10 @@ public  class GameView extends SurfaceView implements SurfaceHolder.Callback {
                 mbutton = new AnalogButton(0 + (int)(2*radius),size.y - (int)(3*radius),radius,  Color.rgb(0, 250,0));
                 drawables.add(dbutton);
                 drawables.add(mbutton);
+                drawables.add(bullet);
+                message = new Message();
+                drawables.add(message);
+                bullet.setMessage(message);
                 buttons = new ArrayList<>();
                 buttons.add(dbutton);
                 buttons.add(mbutton);
@@ -82,58 +89,7 @@ public  class GameView extends SurfaceView implements SurfaceHolder.Callback {
                         }
                 }
 
-                //ok I think that is everything
 
-                /*
-                // get pointer index from the event object
-                int pointerIndex = event.getActionIndex();
-
-                // get pointer ID
-                int pointerId = event.getPointerId(pointerIndex);
-
-                // get masked (not specific to a pointer) action
-                int maskedAction = event.getActionMasked();
-
-                switch (maskedAction) {
-
-                        case MotionEvent.ACTION_DOWN:
-                        case MotionEvent.ACTION_POINTER_DOWN:
-                                // We are assuming smart users to start. Thus if this even is
-                                // on a button, we reset our button to use this pointer.
-                                for (Button button: buttons) {
-                                        if (button.touched(event)) {
-                                                button.setPointer(event);
-                                        }
-                                }
-
-                        break;
-                        case MotionEvent.ACTION_MOVE: { // a pointer was moved
-                                /*
-                                if we have a matching id and the pointer moves off of the button,
-                                then we set the pointer to null (pointerId = -1)
-
-                                for (Button button: buttons) {
-                                        if (button.touched(event)) {
-                                                button.setPointer(event);
-                                        }else if (button.getPointerId() == pointerId){
-                                                //cancel this bitch
-                                                button.setPointerId(-1);
-                                        }
-                                }
-                                break;
-                        }
-                        case MotionEvent.ACTION_UP:
-                        case MotionEvent.ACTION_POINTER_UP:
-                        case MotionEvent.ACTION_CANCEL: {
-                                for (Button button: buttons) {
-                                        if (button.getPointerId() == pointerId){
-                                                //cancel this bitch
-                                                button.setPointerId(-1);
-                                        }
-                                }
-                                break;
-                        }
-                }*/
                 return true;
 
         }
@@ -167,13 +123,24 @@ public  class GameView extends SurfaceView implements SurfaceHolder.Callback {
                 if (mbutton.wasTouched()&&(dbutton.wasTouched())){
                         hero.move(mbutton.getVector());
                         hero.rotateTo(dbutton.getVector());
+                        hero.setFiring(true);
                 }else if (dbutton.wasTouched()){
                         hero.rotateTo(dbutton.getVector());
+                        hero.setFiring(true);
                 }else if (mbutton.wasTouched()){
                         hero.move(mbutton.getVector());
                         hero.rotateTo(mbutton.getVector());
+                        hero.setFiring(false);
+                }else{
+                        hero.setFiring(false);
                 }
                 hero.update();
+                if(hero.isFiring()&&bullet.isOutOfBounds()){
+                        bullet.initialize(hero.location, hero.direction);
+                }
+
+                bullet.update();
+
         }
 
 

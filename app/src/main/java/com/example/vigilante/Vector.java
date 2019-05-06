@@ -17,6 +17,12 @@ public class Vector {
         computeMag();
     }
 
+    public void normalize(){
+        x = x/mag;
+        y = y/mag;
+        mag = 1;
+    }
+
     public void setXY(double x, double y){
         this.x = x;
         this.y = y;
