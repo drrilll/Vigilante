@@ -19,8 +19,11 @@ public  class GameView extends SurfaceView implements SurfaceHolder.Callback {
         ArrayList<Button> buttons;
         private float radius = 150; //analog button radius
         Background background;
-        Bullet bullet;
+        Bullet[] bullet;
+        int bulletCount = 10;
         Message message;
+        final int SPREAD = 10;
+        int shotTimer = 0;
 
 
 
@@ -29,7 +32,10 @@ public  class GameView extends SurfaceView implements SurfaceHolder.Callback {
                 getHolder().addCallback(this);
                 gameThread = new GameThread(getHolder(), this);
                 setFocusable(true);
-                bullet = new Bullet(this);
+                bullet = new Bullet[bulletCount];
+                for (int i = 0; i < bulletCount; i++) {
+                        bullet[i] = new Bullet(this);
+                }
 
                 drawables = new ArrayList<>();
                 background = new Background(this);
@@ -44,10 +50,13 @@ public  class GameView extends SurfaceView implements SurfaceHolder.Callback {
                 mbutton = new AnalogButton(0 + (int)(2*radius),size.y - (int)(3*radius),radius,  Color.rgb(0, 250,0));
                 drawables.add(dbutton);
                 drawables.add(mbutton);
-                drawables.add(bullet);
+                for (int i = 0; i < bulletCount; i++) {
+
+                        drawables.add(bullet[i]);
+                }
                 message = new Message();
                 drawables.add(message);
-                bullet.setMessage(message);
+               // bullet.setMessage(message);
                 buttons = new ArrayList<>();
                 buttons.add(dbutton);
                 buttons.add(mbutton);
@@ -131,15 +140,29 @@ public  class GameView extends SurfaceView implements SurfaceHolder.Callback {
                         hero.move(mbutton.getVector());
                         hero.rotateTo(mbutton.getVector());
                         hero.setFiring(false);
+                        shotTimer = 0;
                 }else{
                         hero.setFiring(false);
+                        shotTimer = 0;
                 }
                 hero.update();
-                if(hero.isFiring()&&bullet.isOutOfBounds()){
-                        bullet.initialize(hero.location, hero.direction);
+                if(hero.isFiring()){
+                        if (++shotTimer>SPREAD) {
+                                shotTimer = 0;
+                                for (int i = 0; i < bulletCount; i++) {
+                                        if (bullet[i].isOutOfBounds()) {
+                                                bullet[i].initialize(hero.location, hero.direction);
+                                                break;
+                                        }
+                                }
+                        }
                 }
 
-                bullet.update();
+                for (int i = 0; i < bulletCount; i++){
+                        bullet[i].update();
+
+                }
+
 
         }
 

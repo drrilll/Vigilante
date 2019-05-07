@@ -8,7 +8,7 @@ public class Bullet implements Drawable, Sprite{
 
     Location location;
     Vector direction;
-    static final double SPEED = 10;
+    static final double SPEED = 20;
     static final int RADIUS = 10;
     Paint paint;
     GameView view;
@@ -31,9 +31,10 @@ public class Bullet implements Drawable, Sprite{
 
     public void initialize(Location location, Vector direction){
         this.direction.setXY(direction.x, direction.y);
-        this.location.setXY(location.x, location.y);
-        //bullet speed is constant, so we don't need magnitude information
         this.direction.normalize();
+        this.location.setXY(location.x+60+(int)(direction.x*1.3), location.y+60+(int)(direction.y*1.3));
+        //bullet speed is constant, so we don't need magnitude information
+
         outOfBounds = false;
         message.setMessage("Initialized");
         viewWidth = view.getWidth();
