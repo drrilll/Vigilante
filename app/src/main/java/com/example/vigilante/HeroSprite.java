@@ -15,16 +15,20 @@ public class HeroSprite implements Sprite, Drawable {
     double speed = 10; //the higher this number, the slower our hero
     Location location;
     //Direction direction;
-    GameView gameView;
+    GameModel model;
     Paint textPaint;
     Vector direction;
     private Matrix rotator;
     float angle;
-    boolean firing = false;
+    int spread;
+    int shotTimer = 0;
+    Gun gun;
+    Message message;
     public HeroSprite(Location location, Vector direction, GameView gameView){
         this.location = location;
         this.direction = direction;
-        this.gameView = gameView;
+        this.model = gameView;
+        gun = new Gun(model, this);
         Resources resources = gameView.getResources();
         hero = BitmapFactory.decodeResource(resources, R.drawable.player_chaingun);
         width = hero.getWidth();
@@ -43,31 +47,61 @@ public class HeroSprite implements Sprite, Drawable {
         this(new Location(x,y), new Vector(0,1,0), gameView);
     }
 
-    public boolean isFiring(){
-        return firing;
-    }
-
-    public void setFiring(boolean firing){
-        this.firing = firing;
-    }
 
     @Override
     public void update(){
+        boolean moveActive = model.moveActive();
+        boolean shootActive = model.shootActive();
+        Vector move;
+        if (moveActive&&shootActive){
+            move(model.getMoveDirection());
+            rotateTo(model.getShootDirection());
+            gun.setFiring(true);
+        }else if (shootActive){
+            rotateTo(model.getShootDirection());
+            gun.setFiring(true);
+        }else if (moveActive){
+            move = model.getMoveDirection();
+            move(move);
+            rotateTo(move);
+            gun.setFiring(false);
+            shotTimer = 0;
+        }else{
+            gun.setFiring(false);
+            shotTimer = 0;
+        }
         rotator.reset();
         rotator.postRotate(angle,50,50);
         rotator.postTranslate(location.x,location.y);
+        gun.update();
+    }
+
+    @Override
+    public Location getLocation() {
+        return location;
+    }
+
+    @Override
+    public Vector getDirection() {
+        return direction;
+    }
+
+    @Override
+    public void setMessage(Message message) {
+        this.message = message;
+        gun.setMessage(message);
     }
 
 
     @Override
     public void draw(Canvas canvas){
-        //canvas.drawBitmap(hero[current],location.x+(int)xoffset,location.y+(int)yoffset, null);
-        //canvas.drawText(Integer.toString(current), 200,200,textPaint);
-
 
         canvas.drawBitmap(hero, rotator, null);
+        gun.draw(canvas);
 
     }
+
+
 
     /**
      *

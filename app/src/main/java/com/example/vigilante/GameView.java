@@ -11,19 +11,19 @@ import android.view.SurfaceView;
 
 import java.util.ArrayList;
 
-public  class GameView extends SurfaceView implements SurfaceHolder.Callback {
+public  class GameView extends SurfaceView implements SurfaceHolder.Callback, GameModel {
         private GameThread gameThread;
         private HeroSprite hero;
+        private ZombieSprite zombie;
         private AnalogButton dbutton, mbutton; //direction and move respectively
         ArrayList<Drawable> drawables;
         ArrayList<Button> buttons;
         private float radius = 150; //analog button radius
         Background background;
-        Bullet[] bullet;
+        //Bullet[] bullet;
         int bulletCount = 10;
         Message message;
-        final int SPREAD = 10;
-        int shotTimer = 0;
+
 
 
 
@@ -32,10 +32,10 @@ public  class GameView extends SurfaceView implements SurfaceHolder.Callback {
                 getHolder().addCallback(this);
                 gameThread = new GameThread(getHolder(), this);
                 setFocusable(true);
-                bullet = new Bullet[bulletCount];
+                /*bullet = new Bullet[bulletCount];
                 for (int i = 0; i < bulletCount; i++) {
                         bullet[i] = new Bullet(this);
-                }
+                }*/
 
                 drawables = new ArrayList<>();
                 background = new Background(this);
@@ -50,13 +50,11 @@ public  class GameView extends SurfaceView implements SurfaceHolder.Callback {
                 mbutton = new AnalogButton(0 + (int)(2*radius),size.y - (int)(3*radius),radius,  Color.rgb(0, 250,0));
                 drawables.add(dbutton);
                 drawables.add(mbutton);
-                for (int i = 0; i < bulletCount; i++) {
-
-                        drawables.add(bullet[i]);
-                }
+                zombie = new ZombieSprite(new Location(200,200), new Vector(0,0,1), this);
+                drawables.add(zombie);
                 message = new Message();
                 drawables.add(message);
-               // bullet.setMessage(message);
+                hero.setMessage(message);
                 buttons = new ArrayList<>();
                 buttons.add(dbutton);
                 buttons.add(mbutton);
@@ -129,39 +127,26 @@ public  class GameView extends SurfaceView implements SurfaceHolder.Callback {
         }
 
         public void update() {
-                if (mbutton.wasTouched()&&(dbutton.wasTouched())){
-                        hero.move(mbutton.getVector());
-                        hero.rotateTo(dbutton.getVector());
-                        hero.setFiring(true);
-                }else if (dbutton.wasTouched()){
-                        hero.rotateTo(dbutton.getVector());
-                        hero.setFiring(true);
-                }else if (mbutton.wasTouched()){
-                        hero.move(mbutton.getVector());
-                        hero.rotateTo(mbutton.getVector());
-                        hero.setFiring(false);
-                        shotTimer = 0;
-                }else{
-                        hero.setFiring(false);
-                        shotTimer = 0;
-                }
-                hero.update();
-                if(hero.isFiring()){
-                        if (++shotTimer>SPREAD) {
-                                shotTimer = 0;
-                                for (int i = 0; i < bulletCount; i++) {
-                                        if (bullet[i].isOutOfBounds()) {
-                                                bullet[i].initialize(hero.location, hero.direction);
-                                                break;
-                                        }
-                                }
+                /*
+                if(dbutton.wasTouched()){
+                        if(dbutton.getVector().x>0){
+                                zombie.zfHeight++;
+                        }else{
+                                zombie.zfHeight--;
                         }
                 }
+                if(mbutton.wasTouched()){
+                        if(mbutton.getVector().x>0){
+                                zombie.startHeight++;
+                        }else{
+                                zombie.startHeight--;
+                        }
+                }*/
 
-                for (int i = 0; i < bulletCount; i++){
-                        bullet[i].update();
+                hero.update();
 
-                }
+                //message.setMessage(zombie.zfHeight+" "+zombie.startHeight+" "+zombie.getCurrentFrame());
+                zombie.update();
 
 
         }
@@ -179,4 +164,38 @@ public  class GameView extends SurfaceView implements SurfaceHolder.Callback {
         }
 
 
+        @Override
+        public boolean moveActive() {
+                return mbutton.touched;
+        }
+
+        @Override
+        public boolean shootActive() {
+                return dbutton.touched;
+        }
+
+        @Override
+        public Vector getMoveDirection() {
+                return mbutton.getVector();
+        }
+
+        @Override
+        public Vector getShootDirection() {
+                return dbutton.getVector();
+        }
+
+        @Override
+        public double getModelHeight() {
+                return getHeight();
+        }
+
+        @Override
+        public double getModelWidth() {
+                return getWidth();
+        }
+
+        @Override
+        public Sprite getHero() {
+                return hero;
+        }
 }
