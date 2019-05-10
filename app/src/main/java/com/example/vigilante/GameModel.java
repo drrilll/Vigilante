@@ -1,5 +1,7 @@
 package com.example.vigilante;
 
+import android.content.res.Resources;
+
 public interface GameModel {
 
     boolean moveActive();
@@ -8,5 +10,6 @@ public interface GameModel {
     Vector getShootDirection();
     double getModelHeight();
     double getModelWidth();
+    Resources getModelResources();
     Sprite getHero();
 }

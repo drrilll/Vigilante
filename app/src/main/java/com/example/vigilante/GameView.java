@@ -2,6 +2,7 @@ package com.example.vigilante;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Point;
@@ -14,17 +15,20 @@ import java.util.ArrayList;
 public  class GameView extends SurfaceView implements SurfaceHolder.Callback, GameModel {
         private GameThread gameThread;
         private HeroSprite hero;
-        private ZombieSprite zombie;
+        private ZombieSprite[] zombie;
         private AnalogButton dbutton, mbutton; //direction and move respectively
         ArrayList<Drawable> drawables;
+        ArrayList<Sprite> updateables;
         ArrayList<Button> buttons;
         private float radius = 150; //analog button radius
         Background background;
-        //Bullet[] bullet;
-        int bulletCount = 10;
         Message message;
 
 
+        @Override
+        public Resources getModelResources(){
+                return getResources();
+        }
 
 
         public GameView(Context context) {
@@ -32,12 +36,9 @@ public  class GameView extends SurfaceView implements SurfaceHolder.Callback, Ga
                 getHolder().addCallback(this);
                 gameThread = new GameThread(getHolder(), this);
                 setFocusable(true);
-                /*bullet = new Bullet[bulletCount];
-                for (int i = 0; i < bulletCount; i++) {
-                        bullet[i] = new Bullet(this);
-                }*/
 
                 drawables = new ArrayList<>();
+                updateables = new ArrayList<>();
                 background = new Background(this);
                 background.initialize();
                 drawables.add(background);
@@ -50,14 +51,25 @@ public  class GameView extends SurfaceView implements SurfaceHolder.Callback, Ga
                 mbutton = new AnalogButton(0 + (int)(2*radius),size.y - (int)(3*radius),radius,  Color.rgb(0, 250,0));
                 drawables.add(dbutton);
                 drawables.add(mbutton);
-                zombie = new ZombieSprite(new Location(200,200), new Vector(0,0,1), this);
-                drawables.add(zombie);
+                zombie = new ZombieSprite[2];
+                zombie[0] = new ZombieSprite(new Location(500,500), new Vector(0,0,1), this);
+                zombie[1] = new ZombieSprite(new Location(800,200), new Vector(0,0,1), this);
+                drawables.add(zombie[0]);
+                drawables.add(zombie[1]);
                 message = new Message();
                 drawables.add(message);
                 hero.setMessage(message);
+                zombie[0].setMessage(message);
+                zombie[1].setMessage(message);
+
                 buttons = new ArrayList<>();
                 buttons.add(dbutton);
                 buttons.add(mbutton);
+                updateables.add(hero);
+                updateables.add(zombie[0]);
+                //TODO make this a zombie horde instead
+                updateables.add(zombie[1]);
+
 
         }
 
@@ -127,27 +139,10 @@ public  class GameView extends SurfaceView implements SurfaceHolder.Callback, Ga
         }
 
         public void update() {
-                /*
-                if(dbutton.wasTouched()){
-                        if(dbutton.getVector().x>0){
-                                zombie.zfHeight++;
-                        }else{
-                                zombie.zfHeight--;
-                        }
+
+                for(Sprite sprite: updateables){
+                        sprite.update();
                 }
-                if(mbutton.wasTouched()){
-                        if(mbutton.getVector().x>0){
-                                zombie.startHeight++;
-                        }else{
-                                zombie.startHeight--;
-                        }
-                }*/
-
-                hero.update();
-
-                //message.setMessage(zombie.zfHeight+" "+zombie.startHeight+" "+zombie.getCurrentFrame());
-                zombie.update();
-
 
         }
 

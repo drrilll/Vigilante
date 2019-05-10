@@ -8,28 +8,25 @@ import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 
-public class HeroSprite implements Sprite, Drawable {
+public class HeroSprite extends Sprite implements Drawable {
     private Bitmap hero;
     int width;
     int height;
     double speed = 10; //the higher this number, the slower our hero
-    Location location;
+   // Location location;
     //Direction direction;
-    GameModel model;
     Paint textPaint;
-    Vector direction;
+   // Vector direction;
     private Matrix rotator;
     float angle;
     int spread;
     int shotTimer = 0;
     Gun gun;
     Message message;
-    public HeroSprite(Location location, Vector direction, GameView gameView){
-        this.location = location;
-        this.direction = direction;
-        this.model = gameView;
-        gun = new Gun(model, this);
-        Resources resources = gameView.getResources();
+    public HeroSprite(Location location, Vector direction, GameModel gameView){
+        super(location,gameView, direction);
+        gun = new Gun(gameView, this);
+        Resources resources = gameView.getModelResources();
         hero = BitmapFactory.decodeResource(resources, R.drawable.player_chaingun);
         width = hero.getWidth();
         height = hero.getHeight();
@@ -39,7 +36,7 @@ public class HeroSprite implements Sprite, Drawable {
         rotator = new Matrix();
     }
 
-    public HeroSprite(GameView gameView){
+    public HeroSprite(GameModel gameView){
         this (new Location(0,0), new Vector(0,1,0), gameView);
     }
 
@@ -107,7 +104,7 @@ public class HeroSprite implements Sprite, Drawable {
      *
      */
     public void rotateTo(Vector touch) {
-        direction = touch;
+        direction.setXY(touch.x, touch.y);
         angle = (float)Math.atan2(touch.y,touch.x);
         angle = (float)Math.toDegrees(angle);
     }

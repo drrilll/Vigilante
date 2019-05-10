@@ -9,50 +9,40 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Rect;
 
-public class ZombieSprite implements Drawable, Sprite{
-    private Bitmap zombie;
+public class ZombieSprite extends Sprite  {
     int width;
     int height;
     int currentLeft, currentTop, startLeft = 130, startHeight=65;
     final int animSpeed = 20; //higher is slower
+    final int fastSpeed = 3;
+    final int slowSpeed = 1;
     int animCount =0;
     int zfWidth = 265, zfHeight = 265;
     final double scale = 0.80;
-    double speed = 10; //the higher this number, the slower our hero
-    Location location;
-    GameView gameView;
     Paint textPaint;
-    Vector direction;
     private Matrix rotator;
-    float angle;
-    Rect[] rect;
+    float angle = 0;
+    double SLOWTURNSPEED = 0.5;
+    double FASTTURNSPEED = 1;
+    Rect rect;
     Rect dest, test;
     static final int FRAMES = 6;
     int currentFrame = 0;
-    Message message;
+
     public ZombieSprite(Location location, Vector direction, GameView gameView){
-        this.location = location;
-        this.direction = direction;
-        this.gameView = gameView;
+        super(location, gameView, direction);
         Resources resources = gameView.getResources();
-        zombie = BitmapFactory.decodeResource(resources, R.drawable.zombiebasic);
-        width = zombie.getWidth();
-        height = zombie.getHeight();
+        bitmap = BitmapFactory.decodeResource(resources, R.drawable.zombiebasic);
+        width = bitmap.getWidth();
+        height = bitmap.getHeight();
         textPaint = new Paint();
         textPaint.setTextSize(60);
         textPaint.setColor(Color.rgb(250,250,250));
         rotator = new Matrix();
         dest = new Rect(location.x, location.y, location.x+(int)(zfWidth*scale), location.y+(int)(zfHeight*scale));
         test = new Rect(0,0,zfWidth,zfHeight);
-        rect = new Rect[FRAMES];
-        int startx = 20, starty = 20,  currentLeft = startx, currentTop = starty;
-        for (int i = 0; i < 2; i++){
-            for (int j = 0; j < 3; j++){
-                currentLeft = startx +(j*zfWidth);
-                currentTop = starty+(i*zfHeight);
-                rect[j+3*i] = new Rect(currentLeft, currentTop, currentLeft+zfWidth,currentTop+zfHeight);
-            }
-        }
+        currentLeft = startLeft; currentTop = startHeight;
+        rect = new Rect(currentLeft, currentTop, currentLeft+zfWidth,currentTop+zfHeight);
     }
 
     public int getCurrentFrame(){
@@ -69,12 +59,16 @@ public class ZombieSprite implements Drawable, Sprite{
 
     @Override
     public void draw(Canvas canvas) {
-        canvas.drawBitmap(zombie, rect[0], dest, null);
-        //canvas.drawBitmap(zombie, test, dest, null);
+        //the angle adjustments were necessary, I did not look too deep into why
+        canvas.rotate(-angle+180, dest.centerX(), dest.centerY());
+        canvas.drawBitmap(bitmap, rect, dest, null);
+        canvas.rotate(angle-180, dest.centerX(), dest.centerY());
     }
 
     @Override
     public void update() {
+
+        //first we update the animation
         if(animCount++>animSpeed) {
             animCount = 0;
             currentFrame++;
@@ -91,21 +85,46 @@ public class ZombieSprite implements Drawable, Sprite{
             currentLeft = startLeft + (currentFrame)*zfWidth;
 
         }
-        rect[0].set(currentLeft, currentTop, currentLeft+zfWidth,currentTop+zfHeight);
+        rect.set(currentLeft, currentTop, currentLeft+zfWidth,currentTop+zfHeight);
+
+        //now we update the AI and direction and so forth
+
+        Location loc =model.getHero().getLocation();
+        //put the zombie at 0,0, thus translate hero
+        //sign((Bx - Ax) * (Y - Ay) - (By - Ay) * (X - Ax))
+        Vector vec = new Vector(0,loc.x-location.x, loc.y-location.y);
+        vec.normalize();
+        //double sign =((direction.x) * (loc.y-location.y) - (direction.y) * (loc.x-location.x));
+        double sign =((direction.x) * (vec.y) - (direction.y) * (vec.x));
+        double unsign = sign;
+        int speed;
+        double turnSpeed;
+        if (sign<0){unsign = -sign;}
+        if (unsign >0.5){
+            speed = slowSpeed;
+            turnSpeed = FASTTURNSPEED;
+        }else{
+            speed = fastSpeed;
+            turnSpeed = SLOWTURNSPEED;
+        }
+        //TODO throw in some randomness, as the zombies wind up exactly on top of
+        //one another. Another option is to have them bump into each other. That might be better.
+        if (sign<0){angle +=turnSpeed;}else{angle -=turnSpeed;}
+        direction.setXY(Math.sin(Math.toRadians(angle)), Math.cos(Math.toRadians(angle)));
+
+        //direction.setXY(location.x-loc.x, location.y-loc.y);
+        //direction.normalize();
+
+        //if the zombie has a long way to turn he slows down. That way he doesn't move in giant arcs
+
+        location.x+=(int)(direction.x*speed);
+        location.y+=(int)(direction.y*speed);
+        message.setMessage(" "+(int)(direction.x*speed)+" "+(int)(direction.y*speed));
+        dest.set(location.x, location.y, location.x+zfWidth, location.y+zfHeight);
+
+        //set the angle for direction
+        //angle = (float)Math.atan2(direction.y,direction.x);
+        //angle = (float)Math.toDegrees(angle);
     }
 
-    @Override
-    public Location getLocation() {
-        return location;
-    }
-
-    @Override
-    public Vector getDirection() {
-        return direction;
-    }
-
-    @Override
-    public void setMessage(Message message) {
-        this.message = message;
-    }
 }

@@ -4,24 +4,19 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 
-public class Bullet implements Drawable, Sprite{
+public class Bullet extends Sprite implements Drawable{
 
-    Location location;
-    Vector direction;
     static final double SPEED = 20;
     static final int RADIUS = 10;
     Paint paint;
-    GameModel model;
     double viewWidth, viewHeight;
     boolean outOfBounds = true;
     Message message;
 
     public Bullet(GameModel view){
-        this.model = view;
+        super(new Location(1,1), view, new Vector(0,1,0));
         paint = new Paint();
         paint.setColor(Color.rgb(250,250,250));
-        direction = new Vector(0,1,0);
-        location = new Location(1,1);
         //message = new Message();
     }
 

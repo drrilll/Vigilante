@@ -8,10 +8,9 @@ import android.graphics.Canvas;
  * is a little hacky
  */
 
-public class Gun implements Sprite, Drawable {
+public class Gun extends Sprite implements Drawable {
 
     Bullet[] bullet;
-    GameModel model;
     Sprite hero;
     boolean firing = false;
     int shotTimer = 0;
@@ -24,7 +23,7 @@ public class Gun implements Sprite, Drawable {
     }
 
     public Gun(int numBullets, GameModel model, Sprite hero){
-        this.model = model;
+        super(hero.location, model, hero.direction);
         this.hero =hero;
         bullet = new Bullet[numBullets];
         for( int i = 0; i < numBullets; i++){

@@ -17,6 +17,10 @@ public class Vector {
         computeMag();
     }
 
+    public void rotate(double angle){
+
+    }
+
     public void normalize(){
         x = x/mag;
         y = y/mag;
