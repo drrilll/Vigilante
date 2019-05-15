@@ -15,14 +15,14 @@ import java.util.ArrayList;
 public  class GameView extends SurfaceView implements SurfaceHolder.Callback, GameModel {
         private GameThread gameThread;
         private HeroSprite hero;
-        private ZombieSprite[] zombie;
         private AnalogButton dbutton, mbutton; //direction and move respectively
         ArrayList<Drawable> drawables;
-        ArrayList<Sprite> updateables;
+        ArrayList<Sprite> sprites;
         ArrayList<Button> buttons;
         private float radius = 150; //analog button radius
         Background background;
         Message message;
+        Horde horde;
 
 
         @Override
@@ -38,7 +38,7 @@ public  class GameView extends SurfaceView implements SurfaceHolder.Callback, Ga
                 setFocusable(true);
 
                 drawables = new ArrayList<>();
-                updateables = new ArrayList<>();
+                sprites = new ArrayList<>();
                 background = new Background(this);
                 background.initialize();
                 drawables.add(background);
@@ -51,24 +51,18 @@ public  class GameView extends SurfaceView implements SurfaceHolder.Callback, Ga
                 mbutton = new AnalogButton(0 + (int)(2*radius),size.y - (int)(3*radius),radius,  Color.rgb(0, 250,0));
                 drawables.add(dbutton);
                 drawables.add(mbutton);
-                zombie = new ZombieSprite[2];
-                zombie[0] = new ZombieSprite(new Location(500,500), new Vector(0,0,1), this);
-                zombie[1] = new ZombieSprite(new Location(800,200), new Vector(0,0,1), this);
-                drawables.add(zombie[0]);
-                drawables.add(zombie[1]);
+                horde = new Horde(this, new Location(500,800), 2);
+                drawables.add(horde);
                 message = new Message();
                 drawables.add(message);
                 hero.setMessage(message);
-                zombie[0].setMessage(message);
-                zombie[1].setMessage(message);
+                horde.setMessage(message);
 
                 buttons = new ArrayList<>();
                 buttons.add(dbutton);
                 buttons.add(mbutton);
-                updateables.add(hero);
-                updateables.add(zombie[0]);
-                //TODO make this a zombie horde instead
-                updateables.add(zombie[1]);
+                sprites.add(hero);
+                sprites.add(horde);
 
 
         }
@@ -138,11 +132,26 @@ public  class GameView extends SurfaceView implements SurfaceHolder.Callback, Ga
                 }
         }
 
+        /**
+         * Check for collisions, then update. I think make different collision classes. I think I should
+         * handle this type of logic here as well. That way it is all handled in one place. I check if
+         * two things collide, then inform the sprites what they have collided with. But I need to
+         * resolve direction and whatnot. Or well, hitBy(Class.human, Vector direction). Vector carries
+         * magnitude as well. Maybe I need a collisionable interface, and getCollidable, since sprites
+         * may have associated objects, like something they have shot or thrown. 
+         */
         public void update() {
 
-                for(Sprite sprite: updateables){
+                detectCollisions();
+
+
+                for(Sprite sprite: sprites){
                         sprite.update();
                 }
+
+        }
+
+        private void detectCollisions(){
 
         }
 

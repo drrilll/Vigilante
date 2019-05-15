@@ -9,6 +9,10 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Rect;
 
+import java.util.Random;
+
+import static com.example.vigilante.Sprite.CollisionClass.human;
+
 public class ZombieSprite extends Sprite  {
     int width;
     int height;
@@ -28,10 +32,19 @@ public class ZombieSprite extends Sprite  {
     Rect dest, test;
     static final int FRAMES = 6;
     int currentFrame = 0;
+    boolean lurch = false;
+    int LURCH = 7;
+    int lurchCount =0;
+    double lurchModifier = 2;
+    Random random;
+    double LURCHPROB;
+    boolean dead = false;
+    int deadTimer = 0;
+    int DEADLIMIT = 500;
 
-    public ZombieSprite(Location location, Vector direction, GameView gameView){
+    public ZombieSprite(Location location, Vector direction, GameModel gameView){
         super(location, gameView, direction);
-        Resources resources = gameView.getResources();
+        Resources resources = gameView.getModelResources();
         bitmap = BitmapFactory.decodeResource(resources, R.drawable.zombiebasic);
         width = bitmap.getWidth();
         height = bitmap.getHeight();
@@ -40,9 +53,11 @@ public class ZombieSprite extends Sprite  {
         textPaint.setColor(Color.rgb(250,250,250));
         rotator = new Matrix();
         dest = new Rect(location.x, location.y, location.x+(int)(zfWidth*scale), location.y+(int)(zfHeight*scale));
-        test = new Rect(0,0,zfWidth,zfHeight);
         currentLeft = startLeft; currentTop = startHeight;
         rect = new Rect(currentLeft, currentTop, currentLeft+zfWidth,currentTop+zfHeight);
+        random = new Random();
+        LURCHPROB = 0.8+random.nextDouble()/20;
+        collisionClass = human;
     }
 
     public int getCurrentFrame(){
@@ -59,6 +74,7 @@ public class ZombieSprite extends Sprite  {
 
     @Override
     public void draw(Canvas canvas) {
+        if (dead){return;}
         //the angle adjustments were necessary, I did not look too deep into why
         canvas.rotate(-angle+180, dest.centerX(), dest.centerY());
         canvas.drawBitmap(bitmap, rect, dest, null);
@@ -66,7 +82,19 @@ public class ZombieSprite extends Sprite  {
     }
 
     @Override
+    public boolean isActive(){
+        return !dead;
+    }
+
+    @Override
     public void update() {
+        if(dead){
+            if (deadTimer++>DEADLIMIT){
+                dead = false;
+            }else{
+                return;
+            }
+        }
 
         //first we update the animation
         if(animCount++>animSpeed) {
@@ -88,6 +116,19 @@ public class ZombieSprite extends Sprite  {
         rect.set(currentLeft, currentTop, currentLeft+zfWidth,currentTop+zfHeight);
 
         //now we update the AI and direction and so forth
+        //start by checking if we are lurching
+
+        if(lurch){
+            if(lurchCount++>LURCH){
+                lurch = false;
+                lurchCount = 0;
+            }
+        }else{
+            if (random.nextFloat()>LURCHPROB){
+                lurch = true;
+                LURCH = random.nextInt(5)+5;
+            }
+        }
 
         Location loc =model.getHero().getLocation();
         //put the zombie at 0,0, thus translate hero
@@ -97,15 +138,27 @@ public class ZombieSprite extends Sprite  {
         //double sign =((direction.x) * (loc.y-location.y) - (direction.y) * (loc.x-location.x));
         double sign =((direction.x) * (vec.y) - (direction.y) * (vec.x));
         double unsign = sign;
-        int speed;
+        double speed;
         double turnSpeed;
         if (sign<0){unsign = -sign;}
         if (unsign >0.5){
-            speed = slowSpeed;
-            turnSpeed = FASTTURNSPEED;
+            if(lurch){
+                speed = slowSpeed*lurchModifier;
+                turnSpeed = FASTTURNSPEED*lurchModifier;
+            }else{
+                speed = slowSpeed;
+                turnSpeed = FASTTURNSPEED;
+            }
+
         }else{
-            speed = fastSpeed;
-            turnSpeed = SLOWTURNSPEED;
+            if(lurch){
+                speed = fastSpeed*lurchModifier;
+                turnSpeed = SLOWTURNSPEED*lurchModifier;
+            }else{
+                speed = fastSpeed;
+                turnSpeed = SLOWTURNSPEED;
+            }
+
         }
         //TODO throw in some randomness, as the zombies wind up exactly on top of
         //one another. Another option is to have them bump into each other. That might be better.
@@ -126,5 +179,25 @@ public class ZombieSprite extends Sprite  {
         //angle = (float)Math.atan2(direction.y,direction.x);
         //angle = (float)Math.toDegrees(angle);
     }
+
+    @Override
+    public void hitBy(CollisionClass type, Vector direction) {
+            switch(type){
+                case human:
+
+                case small:
+            }
+    }
+
+    public double distance(double x1, double y1, double x2, double y2){
+        return Math.sqrt((x1-x2)*(x1-x2)+(y1-y2)*(y1-y2));
+    }
+
+
+    @Override
+    public Rect getBoundingBox(){
+        return dest;
+    }
+
 
 }

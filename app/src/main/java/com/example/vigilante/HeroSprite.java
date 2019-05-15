@@ -113,4 +113,28 @@ public class HeroSprite extends Sprite implements Drawable {
         location.x += touch.x/speed;
         location.y += touch.y/speed;
     }
+
+    @Override
+    public void detectCollision(Sprite sprite) {
+        double dist = 0;
+        switch(sprite.getCollisionClass()){
+            case human:
+                dist = 50;
+                break;
+            case small:
+                dist = 25;
+                break;
+        }
+
+        //Also see what we shoot
+
+        gun.detectCollision(sprite);
+        //return (dist< location.distance(sprite.location));
+    }
+
+    @Override
+    public Sprite.CollisionClass getCollisionClass(){
+        return CollisionClass.human;
+    }
+
 }

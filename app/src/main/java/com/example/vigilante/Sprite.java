@@ -2,13 +2,16 @@ package com.example.vigilante;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Rect;
 
-abstract class Sprite implements Drawable {
+abstract class Sprite implements Drawable, PhysicsObject {
     Location location;
     GameModel model;
     Vector direction;
     Message message;
     Bitmap bitmap;
+    enum CollisionClass {human, small, wall};
+    CollisionClass collisionClass;
 
 
     Sprite(Location location, GameModel gameView, Vector direction) {
@@ -17,8 +20,6 @@ abstract class Sprite implements Drawable {
         this.direction = direction;
     }
 
-    @Override
-    public abstract void draw(Canvas canvas);
 
     public abstract void update();
 
@@ -28,6 +29,10 @@ abstract class Sprite implements Drawable {
 
     public Vector getDirection() {
         return direction;
+    }
+
+    public CollisionClass getCollisionClass(){
+        return collisionClass;
     }
 
     public void setMessage(Message message) {

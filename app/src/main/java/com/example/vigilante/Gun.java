@@ -93,4 +93,24 @@ public class Gun extends Sprite implements Drawable {
 
         }
     }
+
+    public Bullet[] getBullets() {
+        return bullet;
+    }
+
+    @Override
+    public void detectCollision(Sprite sprite) {
+        for(Bullet bul: bullet){
+            //message.setMessage("updating bullets");
+            if (!bul.isOutOfBounds()) {
+                sprite.detectCollision(bul);
+            }
+
+        }
+    }
+
+    @Override
+    public Sprite.CollisionClass getCollisionClass(){
+        return CollisionClass.human;
+    }
 }

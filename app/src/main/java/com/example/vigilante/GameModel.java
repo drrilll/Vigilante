@@ -2,6 +2,9 @@ package com.example.vigilante;
 
 import android.content.res.Resources;
 
+/**
+ * I integrate the model with the view by implementing this interface.
+ */
 public interface GameModel {
 
     boolean moveActive();

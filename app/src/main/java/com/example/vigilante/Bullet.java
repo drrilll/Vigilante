@@ -3,6 +3,7 @@ package com.example.vigilante;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Rect;
 
 public class Bullet extends Sprite implements Drawable{
 
@@ -12,12 +13,14 @@ public class Bullet extends Sprite implements Drawable{
     double viewWidth, viewHeight;
     boolean outOfBounds = true;
     Message message;
+    Rect box;
 
     public Bullet(GameModel view){
         super(new Location(1,1), view, new Vector(0,1,0));
         paint = new Paint();
         paint.setColor(Color.rgb(250,250,250));
         //message = new Message();
+        box = new Rect(location.x, location.y, location.x+RADIUS, location.y + RADIUS);
     }
 
     @Override
@@ -39,12 +42,26 @@ public class Bullet extends Sprite implements Drawable{
 
     }
 
+    @Override
+    public Rect getBoundingBox(){
+        box.set(location.x, location.y, location.x+RADIUS, location.y + RADIUS);
+        return box;
+    }
+
+    @Override
+    public void hitBy(CollisionClass type, Vector direction) {
+        if (type.equals(CollisionClass.wall)){
+            outOfBounds = true;
+        }
+    }
+
     public void giveMessage(String message){
         this.message.setMessage(message);
     }
 
-    public boolean isOutOfBounds() {
-        return outOfBounds;
+    @Override
+    public boolean isActive(){
+        return !outOfBounds;
     }
 
     @Override
@@ -79,4 +96,10 @@ public class Bullet extends Sprite implements Drawable{
     public Vector getDirection() {
         return direction;
     }
+
+    @Override
+    public Sprite.CollisionClass getCollisionClass(){
+        return CollisionClass.small;
+    }
+
 }
