@@ -1,17 +1,19 @@
 package com.example.vigilante;
 
 import android.graphics.Canvas;
+import android.graphics.Rect;
+
+import java.util.ArrayList;
 
 public class Horde extends Sprite {
 
-    private ZombieSprite[] zombies;
-    Message message;
+    private ArrayList<ZombieSprite> zombies;
 
     public Horde(GameModel model, Location location, int size){
-        super(location, model, new Vector(0,1,0));
-        zombies = new ZombieSprite[2];
-        zombies[0] = new ZombieSprite(new Location(500,500), new Vector(0,0,1), model);
-        zombies[1] = new ZombieSprite(new Location(800,200), new Vector(0,0,1), model);
+        super(location, model, new Vector(1,0));
+        zombies = new ArrayList<>();
+        zombies.add(new ZombieSprite(new Location(500,500), new Vector(0,1), model));
+        zombies.add(new ZombieSprite(new Location(800,200), new Vector(0,1), model));
             
     }
 
@@ -25,27 +27,47 @@ public class Horde extends Sprite {
     @Override
     public void update() {
         for(ZombieSprite zombie: zombies){
-            zombie.update();
+            if (zombie.isActive()) {
+                zombie.update();
+            }
         }
 
     }
 
-    public void setMessage(Message message) {
-        this.message = message;
-        for(ZombieSprite zombie: zombies){
-            zombie.setMessage(message);
-        }
-    }
     @Override
-    public void detectCollision(Sprite sprite) {
-        for (ZombieSprite zs: zombies){
-            sprite.detectCollision(zs);
-        }
+    public ArrayList<PhysicsObject> getContainedPhysicsObjects() {
+        return new ArrayList<PhysicsObject>(zombies);
     }
+
 
     @Override
     public Sprite.CollisionClass getCollisionClass(){
         return CollisionClass.human;
+    }
+
+    @Override
+    public Rect getBoundingBox() {
+        return null;
+    }
+
+    @Override
+    public boolean intersects(PhysicsObject obj) {
+        return false;
+    }
+
+    @Override
+    public void hitBy(CollisionClass type, Vector direction) {
+
+    }
+
+    @Override
+    public boolean isActive() {
+        return true;
+    }
+
+    @Override
+    public void initialize(Location location, Vector direction) {
+        return;
     }
 
 }

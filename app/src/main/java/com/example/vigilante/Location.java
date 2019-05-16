@@ -15,6 +15,11 @@ public class Location {
         this.x = x; this.y = y;
     }
 
+    public void setXY(Location location){
+        this.x = location.x;
+        this.y = location.y;
+    }
+
     public double distance(Location loc){
         double xx= (loc.x-x)*(loc.x-x);
         double yy= (loc.y-y)*(loc.y-y);

@@ -12,7 +12,7 @@ public class AnalogButton implements Drawable, Button {
     Location location;
     float radius;
     Paint buttonPaint;
-    Vector touch;
+    ButtonVector touch;
     boolean touched = false;
 
     public AnalogButton(int x, int y, float radius, int color){
@@ -20,7 +20,7 @@ public class AnalogButton implements Drawable, Button {
         this.radius = radius;
         buttonPaint = new Paint();
         buttonPaint.setColor(color);
-        touch = new Vector(-1);
+        touch = new ButtonVector(-1);
     }
 
     @Override
@@ -51,7 +51,7 @@ public class AnalogButton implements Drawable, Button {
 
     @Override
     public void setPointer(double x, double y, int pointerId) {
-        touch.id = pointerId;
+        touch.setId(pointerId);
         touch.setXY(x-location.x, y-location.y);
     }
 

@@ -4,18 +4,26 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 
-public class Message implements Drawable {
+public class Message implements Drawable{
 
-
+    private static Message single_instance;
     String message;
     Paint paint;
 
 
-    public Message(){
+    private Message(){
         paint = new Paint();
         paint.setColor(Color.rgb(250,250,250));
         paint.setTextSize(60);
         message = "";
+    }
+
+    public static Message getInstance(){
+        if (single_instance == null){
+            single_instance = new Message();
+        }
+
+        return single_instance;
     }
 
     public String getMessage() {
@@ -26,8 +34,8 @@ public class Message implements Drawable {
         this.message = message;
     }
 
-    @Override
     public void draw(Canvas canvas) {
         canvas.drawText(message, 0,50,paint);
     }
 }
+

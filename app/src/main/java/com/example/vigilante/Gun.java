@@ -1,6 +1,9 @@
 package com.example.vigilante;
 
 import android.graphics.Canvas;
+import android.graphics.Rect;
+
+import java.util.ArrayList;
 
 /**
  * I will get around to this, but this class should hold the bullets and know how to
@@ -10,12 +13,12 @@ import android.graphics.Canvas;
 
 public class Gun extends Sprite implements Drawable {
 
-    Bullet[] bullet;
+    ArrayList<Bullet> bullets;
+    ArrayList<PhysicsObject> po;
     Sprite hero;
     boolean firing = false;
     int shotTimer = 0;
     final int SPREAD = 10;
-    Message message;
     int count = 0;
 
     public Gun(GameModel model, Sprite hero){
@@ -25,10 +28,12 @@ public class Gun extends Sprite implements Drawable {
     public Gun(int numBullets, GameModel model, Sprite hero){
         super(hero.location, model, hero.direction);
         this.hero =hero;
-        bullet = new Bullet[numBullets];
+        po = new ArrayList<>(numBullets);
+        bullets = new ArrayList<>(numBullets);
         for( int i = 0; i < numBullets; i++){
-            bullet[i] = new Bullet(model);
+            bullets.add(new Bullet(model));
         }
+        po.addAll(bullets);
 
     }
 
@@ -42,7 +47,7 @@ public class Gun extends Sprite implements Drawable {
 
     @Override
     public void draw(Canvas canvas) {
-        for(Bullet bul: bullet){
+        for(Bullet bul: bullets){
             bul.draw(canvas);
         }
     }
@@ -58,26 +63,28 @@ public class Gun extends Sprite implements Drawable {
     }
 
     @Override
-    public void setMessage(Message message) {
-        this.message = message;
-        for( int i = 0; i < bullet.length; i++){
-            bullet[i] = new Bullet(model);
-            bullet[i].setMessage(message);
-        }
+    public boolean isActive() {
+        return false;
+    }
+
+    @Override
+    public ArrayList<PhysicsObject> getContainedPhysicsObjects() {
+        return po;
     }
 
     @Override
     public void update() {
 
         //decide if another bullet will be fired
+        int size = bullets.size();
         if(firing) {
             if (++shotTimer > SPREAD) {
                 shotTimer = 0;
-                for (int i = 0; i < bullet.length; i++) {
-                    if (bullet[i].isOutOfBounds()) {
+                for (int i = 0; i < size; i++) {
+                    if (!bullets.get(i).isActive()) {
                         //message.setMessage("new bullet");
                         //bullet[i].giveMessage("the fuck");
-                        bullet[i].initialize(hero.getLocation(), hero.getDirection());
+                        bullets.get(i).initialize(hero.getLocation(), hero.getDirection());
                         message.setMessage("new bullet2");
                         break;
                     }
@@ -87,30 +94,36 @@ public class Gun extends Sprite implements Drawable {
         }
         //message.setMessage(" "+bullet[0].isOutOfBounds());
         //update the bullets
-        for(Bullet bul: bullet){
+        for(Bullet bul: bullets){
             //message.setMessage("updating bullets");
             bul.update();
 
         }
     }
 
-    public Bullet[] getBullets() {
-        return bullet;
-    }
-
-    @Override
-    public void detectCollision(Sprite sprite) {
-        for(Bullet bul: bullet){
-            //message.setMessage("updating bullets");
-            if (!bul.isOutOfBounds()) {
-                sprite.detectCollision(bul);
-            }
-
-        }
-    }
 
     @Override
     public Sprite.CollisionClass getCollisionClass(){
         return CollisionClass.human;
+    }
+
+    @Override
+    public Rect getBoundingBox() {
+        return null;
+    }
+
+    @Override
+    public boolean intersects(PhysicsObject obj) {
+        return false;
+    }
+
+    @Override
+    public void hitBy(CollisionClass type, Vector direction) {
+        // do the bounce thing
+    }
+
+    @Override
+    public void initialize(Location location, Vector direction) {
+
     }
 }

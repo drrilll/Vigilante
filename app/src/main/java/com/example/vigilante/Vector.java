@@ -4,21 +4,29 @@ public class Vector {
 
     double x, y;
     double mag;
-    int id;
 
-    public Vector(int id){
-        this(id,0,0);
+    public Vector(){
+        this(0,0);
     }
 
-    public Vector(int id, double x, double y){
+    public Vector(double x, double y){
         this.x = x;
         this.y = y;
-        this.id = id;
         computeMag();
+    }
+
+    public Vector(Vector vec){
+        setXY(vec);
     }
 
     public void rotate(double angle){
 
+    }
+
+    public void setXY(Vector vec){
+        this.x = vec.x;
+        this.y = vec.y;
+        this.mag = vec.mag;
     }
 
     public void normalize(){
@@ -33,10 +41,7 @@ public class Vector {
         computeMag();
     }
 
-    public void setId(int id)
-    {
-        this.id = id;
-    }
+
     private void computeMag(){
         mag = Math.sqrt(x*x+y*y);
     }

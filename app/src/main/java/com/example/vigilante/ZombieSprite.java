@@ -1,7 +1,6 @@
 package com.example.vigilante;
 
 import android.content.res.Resources;
-import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -9,6 +8,7 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Rect;
 
+import java.util.ArrayList;
 import java.util.Random;
 
 import static com.example.vigilante.Sprite.CollisionClass.human;
@@ -60,17 +60,6 @@ public class ZombieSprite extends Sprite  {
         collisionClass = human;
     }
 
-    public int getCurrentFrame(){
-        return currentFrame;
-    }
-
-    public void setZfWidth(int zfWidth) {
-        this.zfWidth = zfWidth;
-    }
-
-    public int getZfWidth(){
-        return zfWidth;
-    }
 
     @Override
     public void draw(Canvas canvas) {
@@ -83,18 +72,17 @@ public class ZombieSprite extends Sprite  {
 
     @Override
     public boolean isActive(){
+        message.setMessage("is active " + !dead);
         return !dead;
     }
 
     @Override
     public void update() {
-        if(dead){
-            if (deadTimer++>DEADLIMIT){
-                dead = false;
-            }else{
-                return;
-            }
-        }
+
+        /*if(dead){
+            return;
+        }*/
+        message.setMessage("in zombie update");
 
         //first we update the animation
         if(animCount++>animSpeed) {
@@ -130,10 +118,12 @@ public class ZombieSprite extends Sprite  {
             }
         }
 
+        //we want to chase the hero, this assumes the hero is in sight.
+        //we'll fix this later.
         Location loc =model.getHero().getLocation();
         //put the zombie at 0,0, thus translate hero
         //sign((Bx - Ax) * (Y - Ay) - (By - Ay) * (X - Ax))
-        Vector vec = new Vector(0,loc.x-location.x, loc.y-location.y);
+        Vector vec = new Vector(loc.x-location.x, loc.y-location.y);
         vec.normalize();
         //double sign =((direction.x) * (loc.y-location.y) - (direction.y) * (loc.x-location.x));
         double sign =((direction.x) * (vec.y) - (direction.y) * (vec.x));
@@ -165,9 +155,6 @@ public class ZombieSprite extends Sprite  {
         if (sign<0){angle +=turnSpeed;}else{angle -=turnSpeed;}
         direction.setXY(Math.sin(Math.toRadians(angle)), Math.cos(Math.toRadians(angle)));
 
-        //direction.setXY(location.x-loc.x, location.y-loc.y);
-        //direction.normalize();
-
         //if the zombie has a long way to turn he slows down. That way he doesn't move in giant arcs
 
         location.x+=(int)(direction.x*speed);
@@ -175,28 +162,47 @@ public class ZombieSprite extends Sprite  {
         message.setMessage(" "+(int)(direction.x*speed)+" "+(int)(direction.y*speed));
         dest.set(location.x, location.y, location.x+zfWidth, location.y+zfHeight);
 
-        //set the angle for direction
-        //angle = (float)Math.atan2(direction.y,direction.x);
-        //angle = (float)Math.toDegrees(angle);
     }
 
     @Override
     public void hitBy(CollisionClass type, Vector direction) {
             switch(type){
                 case human:
+                    //implement bumping into or attack
+                    break;
 
-                case small:
+                case bullet:
+                    //we dead or take damage.
+                    dead = true;
+                    break;
+
+
+                case wall:
             }
     }
 
-    public double distance(double x1, double y1, double x2, double y2){
-        return Math.sqrt((x1-x2)*(x1-x2)+(y1-y2)*(y1-y2));
-    }
 
 
     @Override
     public Rect getBoundingBox(){
         return dest;
+    }
+
+    @Override
+    public boolean intersects(PhysicsObject obj) {
+        return false;
+    }
+
+    @Override
+    public void initialize(Location location, Vector direction){
+        this.location.setXY(location);
+        this.direction.setXY(direction);
+        dead = false;
+    }
+
+    @Override
+    public ArrayList<PhysicsObject> getContainedPhysicsObjects() {
+        return null;
     }
 
 

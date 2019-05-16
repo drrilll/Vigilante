@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.Point;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
@@ -19,6 +20,8 @@ public  class GameView extends SurfaceView implements SurfaceHolder.Callback, Ga
         ArrayList<Drawable> drawables;
         ArrayList<Sprite> sprites;
         ArrayList<Button> buttons;
+        //class1 we check collisions against everyone. class2 we check agaist class1
+        ArrayList<PhysicsObject> class1, class2;
         private float radius = 150; //analog button radius
         Background background;
         Message message;
@@ -36,7 +39,9 @@ public  class GameView extends SurfaceView implements SurfaceHolder.Callback, Ga
                 getHolder().addCallback(this);
                 gameThread = new GameThread(getHolder(), this);
                 setFocusable(true);
-
+                message = Message.getInstance();
+                class1 = new ArrayList<>();
+                class2 = new ArrayList<>();
                 drawables = new ArrayList<>();
                 sprites = new ArrayList<>();
                 background = new Background(this);
@@ -51,18 +56,19 @@ public  class GameView extends SurfaceView implements SurfaceHolder.Callback, Ga
                 mbutton = new AnalogButton(0 + (int)(2*radius),size.y - (int)(3*radius),radius,  Color.rgb(0, 250,0));
                 drawables.add(dbutton);
                 drawables.add(mbutton);
+                drawables.add(message);
                 horde = new Horde(this, new Location(500,800), 2);
                 drawables.add(horde);
-                message = new Message();
-                drawables.add(message);
-                hero.setMessage(message);
-                horde.setMessage(message);
 
                 buttons = new ArrayList<>();
                 buttons.add(dbutton);
                 buttons.add(mbutton);
                 sprites.add(hero);
                 sprites.add(horde);
+
+                class1.addAll(horde.getContainedPhysicsObjects());
+                class2.addAll(hero.getContainedPhysicsObjects());
+
 
 
         }
@@ -138,7 +144,7 @@ public  class GameView extends SurfaceView implements SurfaceHolder.Callback, Ga
          * two things collide, then inform the sprites what they have collided with. But I need to
          * resolve direction and whatnot. Or well, hitBy(Class.human, Vector direction). Vector carries
          * magnitude as well. Maybe I need a collisionable interface, and getCollidable, since sprites
-         * may have associated objects, like something they have shot or thrown. 
+         * may have associated objects, like something they have shot or thrown.
          */
         public void update() {
 
@@ -146,13 +152,40 @@ public  class GameView extends SurfaceView implements SurfaceHolder.Callback, Ga
 
 
                 for(Sprite sprite: sprites){
-                        sprite.update();
+                        if(sprite.isActive()){
+                                sprite.update();
+                        }
                 }
 
         }
 
+        /*
+         * This is inefficient, as we are checking all bullets against one another. Maybe I can do some
+         * kind of collection related to the bullet class, static maybe?
+         */
         private void detectCollisions(){
-
+                int size = class1.size();
+                PhysicsObject obj1, obj2;
+                for (int i = 0; i < size; i++){
+                        obj1 = class1.get(i);
+                        if(!obj1.isActive()){continue;}
+                        for (int j = i; j < size; j++){
+                                if (j==i){continue;}
+                                obj2 = class1.get(j);
+                                if(!obj2.isActive()){continue;}
+                                if (obj1.getBoundingBox().intersect(obj2.getBoundingBox())){
+                                        obj1.hitBy(obj2.getCollisionClass(), obj2.getDirection());
+                                        obj2.hitBy(obj1.getCollisionClass(), obj1.getDirection());
+                                }
+                        }
+                        for (PhysicsObject po: class2){
+                                if(!po.isActive()){continue;}
+                                if (obj1.getBoundingBox().intersect(po.getBoundingBox())){
+                                        obj1.hitBy(po.getCollisionClass(), po.getDirection());
+                                        po.hitBy(obj1.getCollisionClass(), obj1.getDirection());
+                                }
+                        }
+                }
         }
 
 
@@ -202,4 +235,7 @@ public  class GameView extends SurfaceView implements SurfaceHolder.Callback, Ga
         public Sprite getHero() {
                 return hero;
         }
+
+
+
 }

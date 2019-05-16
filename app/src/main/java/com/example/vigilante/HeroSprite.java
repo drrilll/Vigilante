@@ -7,6 +7,9 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.Rect;
+
+import java.util.ArrayList;
 
 public class HeroSprite extends Sprite implements Drawable {
     private Bitmap hero;
@@ -21,8 +24,8 @@ public class HeroSprite extends Sprite implements Drawable {
     float angle;
     int spread;
     int shotTimer = 0;
+    ArrayList<PhysicsObject> physicsObjects;
     Gun gun;
-    Message message;
     public HeroSprite(Location location, Vector direction, GameModel gameView){
         super(location,gameView, direction);
         gun = new Gun(gameView, this);
@@ -34,19 +37,22 @@ public class HeroSprite extends Sprite implements Drawable {
         textPaint.setTextSize(60);
         textPaint.setColor(Color.rgb(250,250,250));
         rotator = new Matrix();
+        physicsObjects = new ArrayList<>();
+        physicsObjects.addAll(gun.getContainedPhysicsObjects());
     }
 
     public HeroSprite(GameModel gameView){
-        this (new Location(0,0), new Vector(0,1,0), gameView);
+        this (new Location(0,0), new Vector(1,0), gameView);
     }
 
     public HeroSprite(int x, int y, double direction, GameView gameView){
-        this(new Location(x,y), new Vector(0,1,0), gameView);
+        this(new Location(x,y), new Vector(1,0), gameView);
     }
 
 
     @Override
     public void update(){
+
         boolean moveActive = model.moveActive();
         boolean shootActive = model.shootActive();
         Vector move;
@@ -84,9 +90,13 @@ public class HeroSprite extends Sprite implements Drawable {
     }
 
     @Override
-    public void setMessage(Message message) {
-        this.message = message;
-        gun.setMessage(message);
+    public boolean isActive() {
+        return true;
+    }
+
+    @Override
+    public ArrayList<PhysicsObject> getContainedPhysicsObjects() {
+        return physicsObjects;
     }
 
 
@@ -115,26 +125,28 @@ public class HeroSprite extends Sprite implements Drawable {
     }
 
     @Override
-    public void detectCollision(Sprite sprite) {
-        double dist = 0;
-        switch(sprite.getCollisionClass()){
-            case human:
-                dist = 50;
-                break;
-            case small:
-                dist = 25;
-                break;
-        }
-
-        //Also see what we shoot
-
-        gun.detectCollision(sprite);
-        //return (dist< location.distance(sprite.location));
+    public Sprite.CollisionClass getCollisionClass(){
+        return CollisionClass.human;
     }
 
     @Override
-    public Sprite.CollisionClass getCollisionClass(){
-        return CollisionClass.human;
+    public Rect getBoundingBox() {
+        return null;
+    }
+
+    @Override
+    public boolean intersects(PhysicsObject obj) {
+        return false;
+    }
+
+    @Override
+    public void hitBy(CollisionClass type, Vector direction) {
+
+    }
+
+    @Override
+    public void initialize(Location location, Vector direction) {
+
     }
 
 }

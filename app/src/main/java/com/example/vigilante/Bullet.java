@@ -5,6 +5,8 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 
+import java.util.ArrayList;
+
 public class Bullet extends Sprite implements Drawable{
 
     static final double SPEED = 20;
@@ -12,22 +14,22 @@ public class Bullet extends Sprite implements Drawable{
     Paint paint;
     double viewWidth, viewHeight;
     boolean outOfBounds = true;
-    Message message;
     Rect box;
 
     public Bullet(GameModel view){
-        super(new Location(1,1), view, new Vector(0,1,0));
+        super(new Location(1,1), view, new Vector(1,0));
         paint = new Paint();
         paint.setColor(Color.rgb(250,250,250));
-        //message = new Message();
         box = new Rect(location.x, location.y, location.x+RADIUS, location.y + RADIUS);
     }
 
+
     @Override
-    public void setMessage(Message message){
-        this.message = message;
+    public ArrayList<PhysicsObject> getContainedPhysicsObjects() {
+        return null;
     }
 
+    @Override
     public void initialize(Location location, Vector direction){
         message.setMessage("Initialized");
         this.direction.setXY(direction.x, direction.y);
@@ -47,6 +49,12 @@ public class Bullet extends Sprite implements Drawable{
         box.set(location.x, location.y, location.x+RADIUS, location.y + RADIUS);
         return box;
     }
+
+    @Override
+    public boolean intersects(PhysicsObject obj) {
+        return false;
+    }
+
 
     @Override
     public void hitBy(CollisionClass type, Vector direction) {
@@ -99,7 +107,7 @@ public class Bullet extends Sprite implements Drawable{
 
     @Override
     public Sprite.CollisionClass getCollisionClass(){
-        return CollisionClass.small;
+        return CollisionClass.bullet;
     }
 
 }
