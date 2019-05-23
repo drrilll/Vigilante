@@ -15,6 +15,14 @@ public class Vector {
         computeMag();
     }
 
+    public double getX(){
+        return x;
+    }
+
+    public double getY(){
+        return y;
+    }
+
     public Vector(Vector vec){
         setXY(vec);
     }

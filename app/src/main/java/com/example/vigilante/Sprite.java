@@ -3,7 +3,7 @@ package com.example.vigilante;
 import android.graphics.Bitmap;
 
 
-abstract class Sprite implements Drawable, PhysicsObject{
+public abstract class Sprite implements Drawable{
     Location location;
     GameModel model;
     Vector direction;
@@ -13,7 +13,7 @@ abstract class Sprite implements Drawable, PhysicsObject{
     Message message;
 
 
-    Sprite(Location location, GameModel gameView, Vector direction) {
+    public Sprite(Location location, GameModel gameView, Vector direction) {
         this.location = location;
         this.model = gameView;
         this.direction = direction;

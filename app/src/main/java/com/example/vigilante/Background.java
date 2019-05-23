@@ -4,6 +4,8 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Rect;
+import android.view.SurfaceView;
+import android.view.View;
 
 import java.io.File;
 
@@ -32,30 +34,20 @@ import java.io.File;
  */
 public class Background implements Drawable{
 
-    File file;
-
-    int[][] background;
 
     Bitmap bgmap;
     double width, height, colw, rowh;
 
     final int rows = 20; final int cols = 27;
 
-    GameView view;
+    SurfaceView view;
 
-    public Background(GameView view){
-        //this.file = file;
-        background = new int[10][10];
+    public Background(SurfaceView view){
         this.view = view;
 
     }
 
     public void initialize() {
-        for (int i = 0; i < 10; i++){
-            for (int j=0; j<10; j++){
-                background[i][j]= i+j;
-            }
-        }
 
         bgmap =  BitmapFactory.decodeResource(view.getResources(), R.drawable.tilesheet_complete);
         width = bgmap.getWidth();

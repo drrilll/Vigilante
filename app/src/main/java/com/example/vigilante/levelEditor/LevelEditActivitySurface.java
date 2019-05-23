@@ -1,14 +1,14 @@
-package com.example.vigilante;
+package com.example.vigilante.levelEditor;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
 
-public class GameActivity extends AppCompatActivity {
+public class LevelEditActivitySurface extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(new GameView(this));
+        setContentView(new LevelEditView(this));
     }
 }

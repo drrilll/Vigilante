@@ -13,7 +13,7 @@ import java.util.Random;
 
 import static com.example.vigilante.Sprite.CollisionClass.human;
 
-public class ZombieSprite extends Sprite  {
+public class ZombieSprite extends PhysicsSprite  {
     int width;
     int height;
     int currentLeft, currentTop, startLeft = 130, startHeight=65;

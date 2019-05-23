@@ -7,7 +7,7 @@ import android.graphics.Rect;
 
 import java.util.ArrayList;
 
-public class Bullet extends Sprite implements Drawable{
+public class Bullet extends PhysicsSprite{
 
     static final double SPEED = 20;
     static final int RADIUS = 10;

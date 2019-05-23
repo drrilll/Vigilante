@@ -11,7 +11,7 @@ import android.graphics.Rect;
 
 import java.util.ArrayList;
 
-public class HeroSprite extends Sprite implements Drawable {
+public class HeroSprite extends PhysicsSprite{
     private Bitmap hero;
     int width;
     int height;

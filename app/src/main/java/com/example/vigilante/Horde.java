@@ -5,7 +5,7 @@ import android.graphics.Rect;
 
 import java.util.ArrayList;
 
-public class Horde extends Sprite {
+public class Horde extends PhysicsSprite {
 
     private ArrayList<ZombieSprite> zombies;
 

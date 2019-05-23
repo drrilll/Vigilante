@@ -11,7 +11,7 @@ import java.util.ArrayList;
  * is a little hacky
  */
 
-public class Gun extends Sprite implements Drawable {
+public class Gun extends PhysicsSprite {
 
     ArrayList<Bullet> bullets;
     ArrayList<PhysicsObject> po;
